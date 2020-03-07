@@ -2,8 +2,18 @@
 
 import numpy as np
 import random
+import copy
 import matplotlib.pyplot as plt
 
+# Generates datasets of size 'size' where:
+#
+# First size/2 samples are couples:
+# . Bivariate normal random var of mean [1 0] and standard deviation I*'sigma_sqr'
+# . Label 1
+#
+# Last size/2 samples are couples:
+# . Bivariate normal random var of mean [-1 0] and standard deviation I*'sigma_sqr'
+# . Label 0
 def generatePoints(size, sigma_sqr):
     x1_1 = np.random.normal(1, sigma_sqr, int (size/2))
     x1_2 = np.random.normal(0, sigma_sqr, int (size/2))
@@ -15,9 +25,11 @@ def generatePoints(size, sigma_sqr):
     y_1 = [1 for i in x1_1]
     y_2 = [0 for i in x1_2]
     y = np.concatenate ([y_1, y_2])
-    S = [list(a) for a in zip(x,y)]
+    S = [list(a) for a in zip(x,y)] #Converts tuples into lists so they can be eddited
     return S
 
+# Obtains the perceptron weights from its training dataset S by the method proposed
+# in the practical work instructions
 def trainPerceptron(S):
     w = np.array([0, 0])
     for sample in S:
@@ -29,6 +41,8 @@ def trainPerceptron(S):
                 w = w + sample[0]
     return w
 
+# Calculate the perceptron (characterised by weight w) error with respect to the testing dataset S
+# obtaining mean error and its standard deviation
 def calcError(w, S):
     numErrors = 0
     for sample in S:
@@ -39,14 +53,18 @@ def calcError(w, S):
     return float(numErrors) / float(len(S))
 
 def labelFlip(S, p):
-    for count, sample in enumerate(S):
+    Sflipped = copy.deepcopy(S)
+    for count, sample in enumerate(Sflipped):
+        # Using the property that the random function generates a uniform random number
+        # between [0.0 1.0) we can flip with probability p a label if the generated
+        # number is less than p because of the cummulative distribution function of
+        # the uniform distribution defined
         if(random.random() < p):
             if(sample[1] == 0):
                 sample[1] = 1
             elif(sample[1] == 1):
                 sample[1] = 0
-            S[count] = sample
-    return S
+    return Sflipped
 
 def ex1_1():
     mean = []
