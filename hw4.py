@@ -84,9 +84,9 @@ def ex1_1():
 
     plt.errorbar(sigmaSet, mean, yerr = std, fmt = '.')
     plt.grid()
-    plt.xlabel("Noise variance [sigma(x_i)^2]")
+    plt.xlabel("Noise [$\sigma(x_i)^2$]")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
-    plt.savefig("ex1_1.pdf")
+    plt.savefig("ex1_1.png")
     plt.close()
 
 def ex1_2():
@@ -111,7 +111,7 @@ def ex1_2():
     plt.grid()
     plt.xlabel("Flipping Probability")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
-    plt.savefig("ex1_2.pdf")
+    plt.savefig("ex1_2.png")
     plt.close()
 
 ex1_1()
