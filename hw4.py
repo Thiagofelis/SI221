@@ -15,7 +15,7 @@ def generatePoints(size, sigma_sqr):
     y_1 = [1 for i in x1_1]
     y_2 = [0 for i in x1_2]
     y = np.concatenate ([y_1, y_2])
-    S = list(zip(x, y))
+    S = [list(a) for a in zip(x,y)]
     return S
 
 def trainPerceptron(S):
@@ -40,7 +40,6 @@ def calcError(w, S):
 
 def labelFlip(S, p):
     for count, sample in enumerate(S):
-        sample = list(sample)
         if(random.random() < p):
             if(sample[1] == 0):
                 sample[1] = 1
