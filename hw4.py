@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 
 def generatePoints(size, sigma_sqr):
@@ -19,7 +20,7 @@ def generatePoints(size, sigma_sqr):
 
 def trainPerceptron(S):
     w = np.array([0, 0])
-    for count, sample in enumerate(S):
+    for sample in S:
         if (np.dot(w, sample[0]) > 0):
             if (sample[1] == 0):
                 w = w - sample[0]
@@ -37,22 +38,64 @@ def calcError(w, S):
             numErrors = numErrors + 1
     return float(numErrors) / float(len(S))
 
-mean = []
-std = []
-for sigma_sqr in [0.05, 0.25, 0.50, 0.75]:
-    e = []
-    for it in range(50):
-        s = generatePoints(200, sigma_sqr)
-        w = trainPerceptron(s)
-        e = e + [calcError(w, s)]
-    e = np.array(e)
-    mean = mean + [np.mean(e)]
-    std = std + [np.std(e)]
-    print ("for sigma  _sqr = " + str(sigma_sqr) + ": mu(e) = " + str(np.mean(e))
-    + " and sigma_sqr(e) = " + str(np.std(e)))
+def labelFlip(S, p):
+    for count, sample in enumerate(S):
+        sample = list(sample)
+        if(random.random() < p):
+            if(sample[1] == 0):
+                sample[1] = 1
+            elif(sample[1] == 1):
+                sample[1] = 0
+            S[count] = sample
+    return S
 
-plt.errorbar([0.05, 0.25, 0.50, 0.75], mean, yerr = std, fmt = '.')
-plt.grid()
-plt.xlabel("Noise variance [sigma(x_i)^2]")
-plt.ylabel("Mean and standard deviation of the error [mu(e) and sigma(e)]")
-plt.savefig('ex1_1.pdf')
+def ex1_1():
+    mean = []
+    std = []
+    sigmaSet = [0.05, 0.25, 0.50, 0.75]
+    for sigma_sqr in sigmaSet:
+        e = []
+        for it in range(50):
+            s = generatePoints(200, sigma_sqr)
+            w = trainPerceptron(s)
+            e = e + [calcError(w, s)]
+        e = np.array(e)
+        mean = mean + [np.mean(e)]
+        std = std + [np.std(e)]
+        print ("for sigma  _sqr = " + str(sigma_sqr) + ": mu(e) = " + str(np.mean(e))
+        + " and sigma_sqr(e) = " + str(np.std(e)))
+
+    plt.errorbar(sigmaSet, mean, yerr = std, fmt = '.')
+    plt.grid()
+    plt.xlabel("Noise variance [sigma(x_i)^2]")
+    plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
+    plt.savefig("ex1_1.pdf")
+    plt.close()
+
+def ex1_2():
+    mean = []
+    std = []
+    pSet = [0.00, 0.05, 0.10, 0.20]
+    for p in pSet:
+        e = []
+        for it in range(50):
+            s = generatePoints(200, 0.15)
+            w = trainPerceptron(s)
+            s_flipped = labelFlip(s, p)
+            e = e + [calcError(w, s_flipped)]
+        e = np.array(e)
+        mean = mean + [np.mean(e)]
+        std = std + [np.std(e)]
+        print ("for sigma  _sqr = 0.15 and flipping probability " + str(p)
+               + ": mu(e) = " + str(np.mean(e)) + " and sigma_sqr(e) = "
+               + str(np.std(e)))
+
+    plt.errorbar(pSet, mean, yerr = std, fmt = '.')
+    plt.grid()
+    plt.xlabel("Flipping Probability")
+    plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
+    plt.savefig("ex1_2.pdf")
+    plt.close()
+
+ex1_1()
+ex1_2()
