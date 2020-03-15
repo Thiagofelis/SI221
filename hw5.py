@@ -46,23 +46,32 @@ def kNNVector(k, S, x):
     dist_y = [s[1] for s in dist]
     return max(set(dist_y), key = dist_y.count)
 
-def predictionBinaryError(k, S, X):
+def kNNpredictionBinaryError(k, S, X):
     errors = 0
     for x in X:
         if (x[1] != kNN(k, S, x[0])):
             errors = errors + 1
     return float(errors) / float(len(X))
 
+def predictionBinaryError(label, pred):
+    errors = 0
+    for i in range(len(pred)):
+        if (label[i] != pred[i]):
+            errors = errors + 1
+    return float(errors) / float(len(pred))
+
 def predictionAbsError(label, pred):
     errors = 0
     for i in range(len(pred)):
-        errors = errors + math.abs(label[i] - pred[i])
-    return float(errors) / float(len(X))
+        errors = errors + abs(label[i] - pred[i])
+    return float(errors) / float(len(pred))
 
 def confusion_matrix(l, r):
-    m = np.zeros(10, 10)
+    m = np.zeros((10, 10))
+    ll = [int(0) if x == 10 else int(x) for x in l]
+    rr = [int(0) if x == 10 else int(x) for x in r]
     for i in range(len(r)):
-        m[l[i]][r[i]] = m[l[i]][r[i]] + 1
+        m[ll[i]][rr[i]] = m[ll[i]][rr[i]] + 1
     return m
 
 def ex_1_1():
@@ -90,7 +99,7 @@ def ex_1_2():
             for i in range(50):
                 S = generatePoints(300, ssq)
                 errors_k = errors_k +\
-                    [predictionBinaryError(_k, S[0 : 200], S[200 : 300])]
+                    [kNNpredictionBinaryError(_k, S[0 : 200], S[200 : 300])]
             errors_ssq.append([np.mean(errors_k), np.std(errors_k)])
         errors = errors + [errors_ssq]
     print (errors)
@@ -127,8 +136,9 @@ def ex_2_1():
     plt.close()
 
 def ex_2_2():
+    nbRows = 2000
     df = pd.read_csv("weatherHistory.csv")
-    df = df.iloc[:2000, :]
+    df = df.iloc[:nbRows, :]
     df = df.loc[:,['Temperature (C)', 'Humidity', 'Apparent Temperature (C)']]
     K = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     meanError = []
@@ -139,10 +149,11 @@ def ex_2_2():
             dfShuffled = df.sample(frac=1)
             dfShuffled = dfShuffled.values
             S = [list(a) for a in zip(dfShuffled[:, [0,1]], dfShuffled[:, 2])]
-            train = S[:int(4/5*nbRows), :]
-            test = S[int(4/5*nbRows):, :]
-            result_2_2 = [kNNReal(k, S, x) for x in test[:,0]]
-            error.append(predictionAbsError(test[:, 1], result_2_2))
+            train = S[:int(4/5*nbRows)]
+            test = S[int(4/5*nbRows):]
+            labels = [b for a,b in test]
+            result_2_2 = [kNNReal(k, S, x) for x,y in test]
+            error.append(predictionAbsError(labels, result_2_2))
         meanError.append(np.mean(error))
         stdError.append(np.std(error))
     plt.errorbar(K, meanError, yerr = stdError, fmt = '.')
@@ -182,6 +193,12 @@ def ex_3_1():
     plt.savefig("hw5_graphs/E3Q1/Testing.pdf",  bbox_inches='tight')
     plt.close()
 
+    bins = range(1,12)
+    plt.hist([train['S'], test['S']], bins, label=['Train', 'Test'])
+    plt.legend(loc='upper right')
+    plt.savefig("hw5_graphs/E3Q1/DataDistrib.pdf",  bbox_inches='tight')
+    plt.close()
+
 def ex_3_2():
     train = scipy.io.loadmat('data_app.mat')
     test = scipy.io.loadmat('data_test.mat')
@@ -189,12 +206,11 @@ def ex_3_2():
     test['x'] = test['x']/255
 
     Strain = [list(a) for a in zip(train['x'], train['S'])]
-    Stest = [list(a) for a in zip(test['x'], test['S'])]
     K = [1,3,5]
     error = []
     for k in K:
-        result_3_2 = [kNNReal(k, Strain, x) for x in Stest[:,0]]
-        error.append(predictionBinaryError(Stest[:, 1], result_3_2))
+        result_3_2 = [kNNReal(k, Strain, x) for x in test['x']]
+        error.append(predictionBinaryError(test['S'], result_3_2))
     plt.scatter(K, error)
     plt.grid()
     plt.xlabel("Number K of neighbours considered")
@@ -212,5 +228,5 @@ def ex_3_3(result):
 #ex_1_2()
 #ex_2_1()
 #ex_2_2()
-#ex_3_1()
+ex_3_1()
 ex_3_3(ex_3_2())
