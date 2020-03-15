@@ -75,5 +75,10 @@ def ex_1_2():
     plt.savefig("hw5_graphs/E1Q2/k_fixed.pdf",  bbox_inches='tight')
     plt.close()
 
+def ex_3():
+    import scipy.io
+    train = scipy.io.loadmat('data_app.mat')
+    test = scipy.io.loadmat('data_test.mat')
+
 ex_1_1()
 ex_1_2()
