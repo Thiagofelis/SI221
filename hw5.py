@@ -131,13 +131,41 @@ def ex_2_2():
     plt.grid()
     plt.xlabel("Number K of neighbours considered")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
-    plt.savefig("hw5_graphs/E2Q2.pdf")
+    plt.savefig("hw5_graphs/E2Q2.pdf",  bbox_inches='tight')
     plt.close()
 
-def ex_3():
+def ex_3_1():
     train = scipy.io.loadmat('data_app.mat')
     test = scipy.io.loadmat('data_test.mat')
+    train['x'] = train['x']/255
+    test['x'] = test['x']/255
+
+    fig1=plt.figure()
+    columns = 20
+    rows = 50
+    for i in range(1, len(train['x']) + 1):
+        img = train['x'][i-1].reshape(28, 28)
+        fig1.add_subplot(rows, columns, i)
+        plt.imshow(img)
+        plt.axis('off')
+    plt.subplots_adjust(wspace=0, hspace=0)
+    plt.savefig("hw5_graphs/E3Q1/Training.pdf",  bbox_inches='tight')
+    plt.close()
+
+    fig2=plt.figure()
+    columns = 20
+    rows = 15
+    for i in range(1, len(test['x']) + 1):
+        img = test['x'][i-1].reshape(28, 28)
+        fig2.add_subplot(rows, columns, i)
+        plt.imshow(img)
+        plt.axis('off')
+    plt.subplots_adjust(wspace=0, hspace=0)
+    plt.savefig("hw5_graphs/E3Q1/Testing.pdf",  bbox_inches='tight')
+    plt.close()
 
 #ex_1_1()
 #ex_1_2()
 #ex_2_1()
+#ex_2_2()
+#ex_3_1()
