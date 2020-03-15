@@ -34,6 +34,18 @@ def kNNReal(k, S, x):
     dist_y = [s[1] for s in dist]
     return np.mean(dist_y)
 
+def kNNVector(k, S, x):
+    dist = []
+    for s in S:
+        dist_vv_sqr = 0
+        for i in range(len(x)):
+            dist_vv_sqr = dist_vv_sqr + (x[i]-s[0][i])**2
+        dist = dist.append(math.sqrt(dist_vv_sqr))
+    dist = sorted(dist, key=lambda entry: entry[0])
+    dist = dist[0: k]
+    dist_y = [s[1] for s in dist]
+    return max(set(dist_y), key = dist_y.count)
+
 def predictionBinaryError(k, S, X):
     errors = 0
     for x in X:
@@ -46,6 +58,12 @@ def predictionAbsError(label, pred):
     for i in range(len(pred)):
         errors = errors + math.abs(label[i] - pred[i])
     return float(errors) / float(len(X))
+
+def confusion_matrix(l, r):
+    m = np.zeros(10, 10)
+    for i in range(len(r)):
+        m[l[i]][r[i]] = m[l[i]][r[i]] + 1
+    return m
 
 def ex_1_1():
     S = generatePoints(300, 0.10)
@@ -112,7 +130,7 @@ def ex_2_2():
     df = pd.read_csv("weatherHistory.csv")
     df = df.iloc[:2000, :]
     df = df.loc[:,['Temperature (C)', 'Humidity', 'Apparent Temperature (C)']]
-    K = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    K = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     meanError = []
     stdError = []
     for k in K:
@@ -123,8 +141,8 @@ def ex_2_2():
             S = [list(a) for a in zip(dfShuffled[:, [0,1]], dfShuffled[:, 2])]
             train = S[:int(4/5*nbRows), :]
             test = S[int(4/5*nbRows):, :]
-            result = [kNNReal(k, S, x) for x in test[:,0]]
-            error.append(test[:, 1], result)
+            result_2_2 = [kNNReal(k, S, x) for x in test[:,0]]
+            error.append(predictionAbsError(test[:, 1], result_2_2))
         meanError.append(np.mean(error))
         stdError.append(np.std(error))
     plt.errorbar(K, meanError, yerr = stdError, fmt = '.')
@@ -164,8 +182,35 @@ def ex_3_1():
     plt.savefig("hw5_graphs/E3Q1/Testing.pdf",  bbox_inches='tight')
     plt.close()
 
+def ex_3_2():
+    train = scipy.io.loadmat('data_app.mat')
+    test = scipy.io.loadmat('data_test.mat')
+    train['x'] = train['x']/255
+    test['x'] = test['x']/255
+
+    Strain = [list(a) for a in zip(train['x'], train['S'])]
+    Stest = [list(a) for a in zip(test['x'], test['S'])]
+    K = [1,3,5]
+    error = []
+    for k in K:
+        result_3_2 = [kNNReal(k, Strain, x) for x in Stest[:,0]]
+        error.append(predictionBinaryError(Stest[:, 1], result_3_2))
+    plt.scatter(K, error)
+    plt.grid()
+    plt.xlabel("Number K of neighbours considered")
+    plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
+    plt.savefig("hw5_graphs/E3Q2.pdf",  bbox_inches='tight')
+    plt.close()
+    return result_3_2
+
+def ex_3_3(result):
+    test = scipy.io.loadmat('data_test.mat')
+    cm = confusion_matrix(test['S'], result)
+    print (cm)
+
 #ex_1_1()
 #ex_1_2()
 #ex_2_1()
 #ex_2_2()
 #ex_3_1()
+ex_3_3(ex_3_2())
