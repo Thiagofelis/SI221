@@ -27,6 +27,13 @@ def kNN(k, S, x):
     dist_y = [s[1] for s in dist]
     return max(set(dist_y), key = dist_y.count)
 
+def kNNReal(k, S, x):
+    dist = [[math.sqrt((x[0] - s[0][0])**2 + (x[1] - s[0][1])**2), s[1]] for s in S]
+    dist = sorted(dist, key=lambda entry: entry[0])
+    dist = dist[0: k]
+    dist_y = [s[1] for s in dist]
+    return np.mean(dist_y)
+
 def predictionBinaryError(k, S, X):
     errors = 0
     for x in X:
@@ -34,10 +41,10 @@ def predictionBinaryError(k, S, X):
             errors = errors + 1
     return float(errors) / float(len(X))
 
-def predictionAbsError(k, S, X):
+def predictionAbsError(label, pred):
     errors = 0
-    for x in X:
-        errors = errors + 1
+    for i in range(len(pred)):
+        errors = errors + math.abs(label[i] - pred[i])
     return float(errors) / float(len(X))
 
 def ex_1_1():
@@ -105,12 +112,27 @@ def ex_2_2():
     df = pd.read_csv("weatherHistory.csv")
     df = df.iloc[:2000, :]
     df = df.loc[:,['Temperature (C)', 'Humidity', 'Apparent Temperature (C)']]
-    df = df.sample(frac=1)
-    df = df.values
-    S = [list(a) for a in zip(df[:, [0,1]], df[:, 2])]
-    train = S[:int(4/5*nbRows), :]
-    test = S[int(4/5*nbRows):, :]
-
+    K = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    meanError = []
+    stdError = []
+    for k in K:
+        error = []
+        for i in range(5):
+            dfShuffled = df.sample(frac=1)
+            dfShuffled = dfShuffled.values
+            S = [list(a) for a in zip(dfShuffled[:, [0,1]], dfShuffled[:, 2])]
+            train = S[:int(4/5*nbRows), :]
+            test = S[int(4/5*nbRows):, :]
+            result = [kNNReal(k, S, x) for x in test[:,0]]
+            error.append(test[:, 1], result)
+        meanError.append(np.mean(error))
+        stdError.append(np.std(error))
+    plt.errorbar(K, meanError, yerr = stdError, fmt = '.')
+    plt.grid()
+    plt.xlabel("Number K of neighbours considered")
+    plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
+    plt.savefig("hw5_graphs/E2Q2.pdf")
+    plt.close()
 
 def ex_3():
     train = scipy.io.loadmat('data_app.mat')
