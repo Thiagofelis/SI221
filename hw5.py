@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math as math
+import math
 
 def generatePoints(size, sigma_sqr):
     S = []
@@ -18,8 +18,6 @@ def generatePoints(size, sigma_sqr):
         S.append([_x, y])
     return S
 
-#def plotDecisionBoundary()
-
 def kNN(k, S, x):
     dist = [ [math.sqrt((x[0] - s[0][0])**2 + (x[1] - s[0][1])**2), s[1]] for s in S]
     dist = sorted(dist, key=lambda entry: entry[0])
@@ -34,10 +32,6 @@ def predictionError(k, S, X):
             errors = errors + 1
     return float(errors) / float(len(X))
 
-S = generatePoints(300, 0.15)
-
-print (kNN(5, S, [0.5, 0.9]))
-
 def ex_1_1():
     S = generatePoints(300, 0.10)
     K = [1, 2, 5, 10]
@@ -48,7 +42,7 @@ def ex_1_1():
         plt.contourf(x_plane, x_plane, discrete_image)
         plt.grid()
         plt.title("k = " + str(k))
-        plt.savefig("hw5_graphs/E1Q1/decisionBoundary k = " + str(k) + ".pdf")
+        plt.savefig("hw5_graphs/E1Q1/decisionBoundary k = " + str(k) + ".pdf",  bbox_inches='tight')
         plt.close()
 
 def ex_1_2():
@@ -64,13 +58,13 @@ def ex_1_2():
                 errors_k = errors_k + [predictionError(_k, S[0 : 200], S[200 : 300])]
             errors_ssq.append([np.mean(errors_k), np.std(errors_k)])
         errors = errors + [errors_ssq]
-    print errors
+    print (errors)
     plt.errorbar(k, [a[0] for a in errors[4]], yerr = [a[1] for a in errors[4]], fmt = '.')
     plt.grid()
     plt.title("$\sigma(x_i)^2$ fixed at 0.25")
     plt.xlabel("k")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
-    plt.savefig("hw5_graphs/E1Q2/sigma_fixed.pdf")
+    plt.savefig("hw5_graphs/E1Q2/sigma_fixed.pdf",  bbox_inches='tight')
     plt.close()
 
     plt.errorbar(sigma_sqr, [a[2][0] for a in errors], yerr = [a[2][1] for a in errors], fmt = '.')
@@ -78,8 +72,8 @@ def ex_1_2():
     plt.title("K fixed at 5")
     plt.xlabel("$\sigma(x_i)^2$")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
-    plt.savefig("hw5_graphs/E1Q2/k_fixed.pdf")
+    plt.savefig("hw5_graphs/E1Q2/k_fixed.pdf",  bbox_inches='tight')
     plt.close()
 
-#ex_1_1()
+ex_1_1()
 ex_1_2()
