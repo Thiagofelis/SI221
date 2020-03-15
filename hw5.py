@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import pandas as pd
+import scipy.io
 
 def generatePoints(size, sigma_sqr):
     S = []
@@ -75,10 +77,23 @@ def ex_1_2():
     plt.savefig("hw5_graphs/E1Q2/k_fixed.pdf",  bbox_inches='tight')
     plt.close()
 
+def ex_2_1():
+    df = pd.read_csv("weatherHistory.csv")
+    temp = df['Temperature (C)'].values
+    hum = df['Humidity'].values
+    app = df['Apparent Temperature (C)'].values
+    plt.tricontourf(temp, hum, app, 100, cmap = 'jet')
+    plt.colorbar()
+    plt.title("Apparent temperature in $^\circ$C as a function of temperature and humidity")
+    plt.xlabel("Temperature [$^\circ$C]")
+    plt.ylabel("Humidity")
+    plt.savefig("hw5_graphs/E2Q1.pdf",  bbox_inches='tight')
+    plt.close()
+
 def ex_3():
-    import scipy.io
     train = scipy.io.loadmat('data_app.mat')
     test = scipy.io.loadmat('data_test.mat')
 
-ex_1_1()
-ex_1_2()
+#ex_1_1()
+#ex_1_2()
+ex_2_1()
