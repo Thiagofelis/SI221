@@ -199,8 +199,7 @@ def ex_3_1():
     plt.subplots_adjust(wspace=0, hspace=0)
     plt.savefig("hw5_graphs/E3Q1/Testing.pdf",  bbox_inches='tight')
     plt.close()
-
-    bins = range(1,12)
+    bins = [x-0.5 for x in range(1,12)]
     plt.hist([train['S'], test['S']], bins, label=['Train', 'Test'])
     plt.xticks(range(1, 11))
     plt.legend(loc='upper right')
