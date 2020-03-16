@@ -40,7 +40,7 @@ def kNNVector(k, S, x):
         dist_vv_sqr = 0
         for i in range(len(x)):
             dist_vv_sqr = dist_vv_sqr + (x[i]-s[0][i])**2
-        dist = dist.append(math.sqrt(dist_vv_sqr))
+        dist.append([math.sqrt(dist_vv_sqr), s[1]])
     dist = sorted(dist, key=lambda entry: entry[0])
     dist = dist[0: k]
     dist_y = [s[1] for s in dist]
@@ -102,7 +102,6 @@ def ex_1_2():
                     [kNNpredictionBinaryError(_k, S[0 : 200], S[200 : 300])]
             errors_ssq.append([np.mean(errors_k), np.std(errors_k)])
         errors = errors + [errors_ssq]
-    print (errors)
     plt.errorbar(k, [a[0] for a in errors[4]], yerr = [a[1] for a in errors[4]],\
                  fmt = '.')
     plt.grid()
@@ -205,12 +204,14 @@ def ex_3_2():
     train['x'] = train['x']/255
     test['x'] = test['x']/255
 
-    Strain = [list(a) for a in zip(train['x'], train['S'])]
+    trainLabels = [x[0] for x in train['S']]
+    testLabels = [x[0] for x in test['S']]
+    Strain = [list(a) for a in zip(train['x'], trainLabels)]
     K = [1,3,5]
     error = []
     for k in K:
-        result_3_2 = [kNNReal(k, Strain, x) for x in test['x']]
-        error.append(predictionBinaryError(test['S'], result_3_2))
+        result_3_2 = [kNNVector(k, Strain, x) for x in test['x']]
+        error.append(predictionBinaryError(testLabels, result_3_2))
     plt.scatter(K, error)
     plt.grid()
     plt.xlabel("Number K of neighbours considered")
@@ -228,5 +229,5 @@ def ex_3_3(result):
 #ex_1_2()
 #ex_2_1()
 #ex_2_2()
-ex_3_1()
+#ex_3_1()
 ex_3_3(ex_3_2())
