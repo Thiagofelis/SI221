@@ -194,6 +194,7 @@ def ex_3_1():
 
     bins = range(1,12)
     plt.hist([train['S'], test['S']], bins, label=['Train', 'Test'])
+    plt.xticks(range(1, 11))
     plt.legend(loc='upper right')
     plt.savefig("hw5_graphs/E3Q1/DataDistrib.pdf",  bbox_inches='tight')
     plt.close()
