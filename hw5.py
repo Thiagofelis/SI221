@@ -31,6 +31,8 @@ def kNN(k, S, x):
     dist_y = [s[1] for s in dist]
     return max(set(dist_y), key = dist_y.count)
 
+# Runs knn where the labels can take real numbers and returns the mean of the k
+# nearest neighbours
 def kNNReal(k, S, x):
     dist = [[math.sqrt((x[0] - s[0][0])**2 + (x[1] - s[0][1])**2), s[1]] for s in S]
     dist = sorted(dist, key=lambda entry: entry[0])
@@ -38,6 +40,8 @@ def kNNReal(k, S, x):
     dist_y = [s[1] for s in dist]
     return np.mean(dist_y)
 
+# Runs knn where the input is a vector and the distance considered is the euclidian
+# distance between it and the training set vectors
 def kNNVector(k, S, x):
     dist = []
     for s in S:
@@ -59,6 +63,7 @@ def kNNpredictionBinaryError(k, S, X):
             errors = errors + 1
     return float(errors) / float(len(X))
 
+# Computes the number of labels wrongly predicted by the algorithm
 def predictionBinaryError(label, pred):
     errors = 0
     for i in range(len(pred)):
@@ -66,12 +71,15 @@ def predictionBinaryError(label, pred):
             errors = errors + 1
     return float(errors) / float(len(pred))
 
+# Computes the sum of the absolute errors commited by the prediction in a label set
 def predictionAbsError(label, pred):
     errors = 0
     for i in range(len(pred)):
         errors = errors + abs(label[i] - pred[i])
     return float(errors) / float(len(pred))
 
+# Returns a matrix where the element a_i_j represents that an element i was labelled
+# as being j (from 0 to 9)
 def confusion_matrix(l, r):
     m = np.zeros((10, 10))
     ll = [int(0) if x == 10 else int(x) for x in l]
@@ -173,9 +181,9 @@ def ex_3_1():
     train['x'] = train['x']/255
     test['x'] = test['x']/255
 
-    fig1=plt.figure()
-    columns = 20
-    rows = 50
+    fig1=plt.figure(figsize=(5,8))
+    columns = 25
+    rows = 40
     for i in range(1, len(train['x']) + 1):
         img = train['x'][i-1].reshape(28, 28)
         fig1.add_subplot(rows, columns, i)
@@ -185,7 +193,7 @@ def ex_3_1():
     plt.savefig("hw5_graphs/E3Q1/Training.pdf",  bbox_inches='tight')
     plt.close()
 
-    fig2=plt.figure()
+    fig2=plt.figure(figsize=(4,3))
     columns = 20
     rows = 15
     for i in range(1, len(test['x']) + 1):
@@ -196,8 +204,7 @@ def ex_3_1():
     plt.subplots_adjust(wspace=0, hspace=0)
     plt.savefig("hw5_graphs/E3Q1/Testing.pdf",  bbox_inches='tight')
     plt.close()
-
-    bins = range(1,12)
+    bins = [x-0.5 for x in range(1,12)]
     plt.hist([train['S'], test['S']], bins, label=['Train', 'Test'])
     plt.xticks(range(1, 11))
     plt.legend(loc='upper right')
@@ -215,25 +222,27 @@ def ex_3_2():
     Strain = [list(a) for a in zip(train['x'], trainLabels)]
     K = [1,3,5]
     error = []
+    result_3_2 = {}
     for k in K:
-        result_3_2 = [kNNVector(k, Strain, x) for x in test['x']]
-        error.append(predictionBinaryError(testLabels, result_3_2))
+        result_3_2[k] = [kNNVector(k, Strain, x) for x in test['x']]
+        error.append(predictionBinaryError(testLabels, result_3_2[k]))
     plt.scatter(K, error)
     plt.grid()
     plt.xlabel("Number K of neighbours considered")
-    plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
+    plt.ylabel("Proportional error labelling the numbers")
     plt.savefig("hw5_graphs/E3Q2.pdf",  bbox_inches='tight')
     plt.close()
     return result_3_2
 
 def ex_3_3(result):
     test = scipy.io.loadmat('data_test.mat')
-    cm = confusion_matrix(test['S'], result)
-    print (cm)
+    for k in result:
+        print ("Confusion matrix for k = " + str(k))
+        print (confusion_matrix(test['S'], result[k]))
 
 ex_1_1()
 ex_1_2()
-#ex_2_1()
-#ex_2_2()
-#ex_3_1()
-#ex_3_3(ex_3_2())
+ex_2_1()
+ex_2_2()
+ex_3_1()
+ex_3_3(ex_3_2())
