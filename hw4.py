@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 # . Bivariate normal random var of mean [-1 0] and standard deviation I*'sigma_sqr'
 # . Label 0
 def generatePoints(size, sigma_sqr):
-    x1_1 = np.random.normal(1, sigma_sqr, int (size/2))
-    x1_2 = np.random.normal(0, sigma_sqr, int (size/2))
+    x1_1 = np.random.normal(1, math.sqrt(sigma_sqr), int (size/2))
+    x1_2 = np.random.normal(0, math.sqrt(sigma_sqr), int (size/2))
     x1 = np.array ((x1_1, x1_2)).T
-    x2_1 = np.random.normal(-1, sigma_sqr, int (size/2))
-    x2_2 = np.random.normal(0, sigma_sqr, int (size/2))
+    x2_1 = np.random.normal(-1, math.sqrt(sigma_sqr), int (size/2))
+    x2_2 = np.random.normal(0, math.sqrt(sigma_sqr), int (size/2))
     x2 = np.array ((x2_1, x2_2)).T
     x = np.concatenate ([x1, x2])
     y_1 = [1 for i in x1_1]

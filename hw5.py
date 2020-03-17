@@ -5,6 +5,8 @@ import pandas as pd
 import scipy.io
 
 def generatePoints(size, sigma_sqr):
+    # generate dataset of given size and sigma_sqr, according to
+    # the specifications given in exercise 1
     S = []
     for i in range(size):
         y = int (np.random.uniform(0, 3))
@@ -14,13 +16,15 @@ def generatePoints(size, sigma_sqr):
             mu = [1, 0]
         else:
             mu = [0, 1]
-        x_0 = np.random.normal(mu[0], sigma_sqr)
-        x_1 = np.random.normal(mu[1], sigma_sqr)
+        x_0 = np.random.normal(mu[0], math.sqrt(sigma_sqr))
+        x_1 = np.random.normal(mu[1], math.sqrt(sigma_sqr))
         _x = np.array((x_0, x_1))
         S.append([_x, y])
     return S
 
 def kNN(k, S, x):
+    # given a k and a dataset S, where each element s of the dataset is a tuple of
+    # coordinates (s[0]) and a label(s[1]), it runs kNN to calculate the label on point x
     dist = [[math.sqrt((x[0] - s[0][0])**2 + (x[1] - s[0][1])**2), s[1]] for s in S]
     dist = sorted(dist, key=lambda entry: entry[0])
     dist = dist[0: k]
@@ -47,6 +51,8 @@ def kNNVector(k, S, x):
     return max(set(dist_y), key = dist_y.count)
 
 def kNNpredictionBinaryError(k, S, X):
+    # calculates prediction error on X, for the given k and the given dataset S.
+    # each element x of X is a tuple of cordinates and a label.
     errors = 0
     for x in X:
         if (x[1] != kNN(k, S, x[0])):
@@ -79,7 +85,6 @@ def ex_1_1():
     K = [1, 2, 5, 10]
     for k in K:
         x_plane = [0.01 * a for a in range(-150, 150)]
-        discrete_domain = [[a,b] for a in x_plane for b in x_plane]
         discrete_image = [[kNN(k, S, [a,b]) for b in x_plane] for a in x_plane]
         plt.contourf(x_plane, x_plane, discrete_image)
         plt.grid()
@@ -102,10 +107,10 @@ def ex_1_2():
                     [kNNpredictionBinaryError(_k, S[0 : 200], S[200 : 300])]
             errors_ssq.append([np.mean(errors_k), np.std(errors_k)])
         errors = errors + [errors_ssq]
-    plt.errorbar(k, [a[0] for a in errors[4]], yerr = [a[1] for a in errors[4]],\
+    plt.errorbar(k, [a[0] for a in errors[3]], yerr = [a[1] for a in errors[3]],\
                  fmt = '.')
     plt.grid()
-    plt.title("$\sigma(x_i)^2$ fixed at 0.25")
+    plt.title("$\sigma(x_i)^2$ fixed at 0.20")
     plt.xlabel("k")
     plt.ylabel("Mean and std deviation of the error [$\mu(e)$ and $\sigma(e)$]")
     plt.savefig("hw5_graphs/E1Q2/sigma_fixed.pdf",  bbox_inches='tight')
@@ -226,9 +231,9 @@ def ex_3_3(result):
     cm = confusion_matrix(test['S'], result)
     print (cm)
 
-#ex_1_1()
-#ex_1_2()
+ex_1_1()
+ex_1_2()
 #ex_2_1()
 #ex_2_2()
 #ex_3_1()
-ex_3_3(ex_3_2())
+#ex_3_3(ex_3_2())
