@@ -17,10 +17,6 @@ def assign_samples (codebook, samples):
         cl_i = np.argmin(dist_i)
         cl.append(cl_i)
     return cl
-    #for s in samples:
-        #dist = [np.linalg.norm(np.subtract(s,label)) for label in codebook]
-        #cl.append(np.argmin(dist))
-    #return cl
 
 def calculate_centroids(samples, codebook, cl, n_points):
     centroid = []
@@ -30,7 +26,9 @@ def calculate_centroids(samples, codebook, cl, n_points):
     return centroid
 
 def convergence(samples, codebook_old, codebook_cur, thr, cl_old, cl_cur):
-    delta_inertia = inertia(samples, codebook_old, cl_old) - inertia(samples, codebook_cur, cl_cur)
+    inertia_cur = inertia(samples, codebook_cur, cl_cur)
+    inertia_old = inertia(samples, codebook_old, cl_old)
+    delta_inertia = (inertia_old - inertia_cur)/inertia_old
     if (delta_inertia < thr):
         return True
     else:
@@ -44,9 +42,7 @@ def inertia (samples, codebook, cl):
         c_i = np.tile(codebook[i],[len(s_i),1])
         dist_i_sqr = np.linalg.norm(s_i-c_i)**2
         dist.append(dist_i_sqr)
-    value_inertia = np.sum(dist)
-    print(value_inertia)
-    return value_inertia
+    return np.sum(dist)
 
 def KMeans (codebook, samples, thr, max_it):
     count = 1
@@ -55,7 +51,7 @@ def KMeans (codebook, samples, thr, max_it):
     centroids = calculate_centroids(samples, codebook, cl_old, n_points)
     cl_cur = assign_samples(centroids, samples)
 
-    while (convergence(samples, codebook, centroids, thr, cl_old, cl_cur)== False and count <= max_it):
+    while (convergence(samples, codebook, centroids, thr, cl_old, cl_cur)== False and count < max_it):
         codebook = centroids
         cl_old = cl_cur
         centroids = calculate_centroids(samples, codebook, cl_cur, n_points)
@@ -84,7 +80,7 @@ image_array = np.reshape(image, (w * h, d))
 
 n_colors = 64
 threshold = 0.01
-max_iterations = 5
+max_iterations = 3
 
 #using 64 points from the fist 500 top points 
 codebook_random_1 = codebook(image_array[:500], n_colors)
@@ -94,7 +90,8 @@ image_1 = image_1.astype(float) / 255
 
 plt.figure()
 plt.imshow(image_1)
-plt.savefig("hw6_graphs/500First.pdf")
+plt.axis('off')
+plt.savefig("hw6_quantizedImages/500First.jpg", bbox_inches='tight', pad_inches = 0)
 plt.close()
 
 #using 64 points from the whole image
@@ -107,5 +104,20 @@ image_2 = image_2.astype(float) / 255
 
 plt.figure()
 plt.imshow(image_2)
-plt.savefig("hw6_graphs/AllPOints.pdf")
+plt.axis('off')
+plt.savefig("hw6_quantizedImages/AllPOints.jpg", bbox_inches='tight', pad_inches = 0)
 plt.close()
+
+for max_iterations in [1,3,5,10,20]:
+    for threshold in [0.2, 0.1, 0.05, 0.01, 0.005]:
+        (codebooki, lll) = KMeans(codebook_random_2, image_array, threshold, max_iterations)
+
+        image_i = recreate_image(codebooki, lll, w, h, d)
+        image_i = image_i.astype(float) / 255
+
+        plt.figure()
+        plt.imshow(image_i)
+        plt.axis('off')
+        plt.savefig("hw6_quantizedImages/AllPOints" + str(max_iterations) + \
+                    "_" + str(threshold) + ".jpg", bbox_inches='tight', pad_inches = 0)
+        plt.close()
