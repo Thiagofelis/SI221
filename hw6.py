@@ -6,7 +6,6 @@ import scipy.io
 from numpy.random import normal as normal
 from numpy.linalg import norm as norm
 
-
 def generatePoints(size, sigma_sqr):
     # generate dataset of given size and sigma_sqr
     S = []
@@ -42,11 +41,11 @@ def Kmeans(S, initCentroidsDist, updateNorm=2, costNorm=2):
     while (not np.array_equal (centroids, previousCentroids)):
         previousCentroids = centroids
 
-        labeledS = [ (v, np.argmin( [ norm( np.subtract(c, v), ord=updateNorm ) ** 2 for c in centroids] ) ) for (v, l) in labeledS ]
+        labeledS = [ (v, np.argmin( [ norm( np.subtract(c, v), ord=updateNorm ) ** updateNorm for c in centroids] ) ) for (v, l) in labeledS ]
         centroids = [ updateCenter(c , [v for (v, l) in labeledS if l == index] , updateNorm)
                                                                 for (index, c) in enumerate(centroids) ]
 
-        cost.append( sum( [ norm( np.subtract(centroids[l], v), ord=costNorm ) ** 2 for (v, l) in labeledS] ) )
+        cost.append( sum( [ norm( np.subtract(centroids[l], v), ord=costNorm ) ** costNorm for (v, l) in labeledS] ) )
 
     return (labeledS, centroids, cost)
 
